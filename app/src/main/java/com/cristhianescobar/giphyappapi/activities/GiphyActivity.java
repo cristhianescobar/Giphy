@@ -1,9 +1,11 @@
-package com.cristhianescobar.giphyappapi;
+package com.cristhianescobar.giphyappapi.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.webkit.WebView;
+
+import com.cristhianescobar.giphyappapi.R;
 
 public class GiphyActivity extends AppCompatActivity {
 
