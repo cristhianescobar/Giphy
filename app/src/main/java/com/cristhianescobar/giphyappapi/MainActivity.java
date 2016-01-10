@@ -1,13 +1,19 @@
 package com.cristhianescobar.giphyappapi;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -21,6 +27,11 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.fab)
     FloatingActionButton fab;
 
+    @Bind(R.id.recyclerview_list)
+    RecyclerView mRecyclerView;
+
+    ImageDataAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +40,27 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
 
+
+        adapter = new ImageDataAdapter(this, getSourceData());
+        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+
+    }
+
+
+    @NonNull
+    private List getSourceData() {
+
+        List result = new ArrayList<DataUnit>();
+        for (int i = 0; i < 20; i++) {
+            DataUnit d = new DataUnit();
+            d.iconId = R.drawable.ic_cast_dark;
+            d.title = "Giphy : " + i;
+            result.add(d);
+        }
+        return result;
     }
 
     @OnClick(R.id.fab)
