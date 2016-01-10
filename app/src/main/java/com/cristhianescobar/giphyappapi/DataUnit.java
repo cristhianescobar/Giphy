@@ -6,4 +6,5 @@ package com.cristhianescobar.giphyappapi;
 public class DataUnit {
         public int iconId;
         public String title;
+        public String urlImage;
 }

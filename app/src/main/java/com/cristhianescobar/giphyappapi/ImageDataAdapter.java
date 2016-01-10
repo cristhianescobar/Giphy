@@ -1,6 +1,7 @@
 package com.cristhianescobar.giphyappapi;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +54,8 @@ public class ImageDataAdapter extends RecyclerView.Adapter<ImageDataAdapter.Data
         DataUnit current = data.get(position) ;
         Log.d("DataUnitAdapter", "On onBindViewHolder called " + position);
         holder.title.setText(current.title);
-        holder.image.setImageResource(current.iconId);
+//        holder.image.setImageResource(current.iconId);
+        Picasso.with(mContext).load(current.title).into(holder.image);
 
     }
 
@@ -77,6 +81,10 @@ public class ImageDataAdapter extends RecyclerView.Adapter<ImageDataAdapter.Data
         @Override
         public void onClick(View v) {
             Toast.makeText(mContext, "Clicked " + getPosition(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(mContext, GiphyActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("url", data.get(getPosition()).title);
+            mContext.startActivity(intent);
         }
     }
 }

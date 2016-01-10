@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,10 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit.Call;
+import retrofit.Callback;
 import retrofit.GsonConverterFactory;
+import retrofit.Response;
 import retrofit.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
@@ -46,9 +50,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-        adapter = new ImageDataAdapter(this, getSourceData());
-        mRecyclerView.setAdapter(adapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        adapter = new ImageDataAdapter(this, new ArrayList<DataUnit>());
+//        mRecyclerView.setAdapter(adapter);
+//        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 
 
@@ -86,16 +90,43 @@ public class MainActivity extends AppCompatActivity {
 
         MyGiphyAPIService service = retrofit.create(MyGiphyAPIService.class);
 
-//        try {
-//            Response<List<MyGiphyAPIService.Data>> execute = service.getTrendingGiphys().execute();
-//            execute.
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        Call<MyGiphyAPIService.ResponseData> call = service.getTrendingGiphys();
+        call.enqueue(new Callback<MyGiphyAPIService.ResponseData>() {
+            @Override
+            public void onResponse(final Response<MyGiphyAPIService.ResponseData> response, Retrofit retrofit) {
 
-//            MyGiphyAPIService.Data data = service.getTrendingGiphys();
-        Object o = service.getTrendingGiphys();
 
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getBaseContext(), "Good Response", Toast.LENGTH_LONG).show();
+                        MyGiphyAPIService.ResponseData dResponse = response.body();
+                        List<DataUnit> giphyList = new ArrayList<DataUnit>();
+
+                        for(MyGiphyAPIService.Data singleGiphy : dResponse.data){
+                            giphyList.add(getDataUnit(singleGiphy.images.downSampled.imageUrl));
+                        }
+
+                        adapter = new ImageDataAdapter(getBaseContext(), giphyList);
+                        mRecyclerView.setAdapter(adapter);
+                        mRecyclerView.setLayoutManager(new LinearLayoutManager(getBaseContext()));
+
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getBaseContext(), "Bad Response", Toast.LENGTH_LONG).show();
+
+                    }
+                });
+            }
+        });
     }
 
     @Override
