@@ -18,6 +18,8 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit.GsonConverterFactory;
+import retrofit.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView mRecyclerView;
 
     ImageDataAdapter adapter;
+
+    public static final String API_BASE_URL = "http://api.giphy.com";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,25 +53,49 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
+    List result;
 
     @NonNull
     private List getSourceData() {
 
-        List result = new ArrayList<DataUnit>();
+        result = new ArrayList<DataUnit>();
         for (int i = 0; i < 20; i++) {
-            DataUnit d = new DataUnit();
-            d.iconId = R.drawable.ic_cast_dark;
-            d.title = "Giphy : " + i;
+            DataUnit d = getDataUnit("Giphy : " + i);
             result.add(d);
         }
         return result;
+    }
+
+    @NonNull
+    private DataUnit getDataUnit(String name) {
+        DataUnit d = new DataUnit();
+        d.iconId = R.drawable.ic_cast_dark;
+        d.title = name;
+        return d;
     }
 
     @OnClick(R.id.fab)
     public void submit(View view) {
         Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(API_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        MyGiphyAPIService service = retrofit.create(MyGiphyAPIService.class);
+
+//        try {
+//            Response<List<MyGiphyAPIService.Data>> execute = service.getTrendingGiphys().execute();
+//            execute.
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+//            MyGiphyAPIService.Data data = service.getTrendingGiphys();
+        Object o = service.getTrendingGiphys();
+
     }
 
     @Override
