@@ -10,9 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.cristhianescobar.giphyappapi.DataUnit;
 import com.cristhianescobar.giphyappapi.R;
 import com.cristhianescobar.giphyappapi.activities.GiphyActivity;
+import com.cristhianescobar.giphyappapi.utils.DataUnit;
 import com.squareup.picasso.Picasso;
 
 import java.util.Collections;

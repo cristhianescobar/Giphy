@@ -1,4 +1,4 @@
-package com.cristhianescobar.giphyappapi;
+package com.cristhianescobar.giphyappapi.utils;
 
 import android.support.annotation.NonNull;
 

@@ -15,23 +15,24 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.cristhianescobar.giphyappapi.DataUnit;
 import com.cristhianescobar.giphyappapi.R;
 import com.cristhianescobar.giphyappapi.adapter.ImageDataAdapter;
 import com.cristhianescobar.giphyappapi.data.Data;
 import com.cristhianescobar.giphyappapi.data.ResponseData;
 import com.cristhianescobar.giphyappapi.service.GiphyAPIService;
+import com.cristhianescobar.giphyappapi.utils.DataUnit;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import retrofit.Call;
-import retrofit.Callback;
 import retrofit.GsonConverterFactory;
-import retrofit.Response;
 import retrofit.Retrofit;
+import retrofit.RxJavaCallAdapterFactory;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageDataAdapter adapter;
     private String TAG = "SEARCH";
     private Retrofit retrofit;
+    private GiphyAPIService service;
 
 
     @Bind(R.id.toolbar)
@@ -63,7 +65,9 @@ public class MainActivity extends AppCompatActivity {
         retrofit = new Retrofit.Builder()
                 .baseUrl(GiphyAPIService.API_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
+        service = retrofit.create(GiphyAPIService.class);
 
         getPopularGiphys();
     }
@@ -90,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
                 if(!newText.isEmpty() && newText.charAt(newText.length()-1) == ' '){
                     searchGiphyQuery(newText);
                     progressBar.setVisibility(View.VISIBLE);
-
                 }
                 return false;
             }
@@ -106,22 +109,57 @@ public class MainActivity extends AppCompatActivity {
 
     private void getPopularGiphys() {
 
-        GiphyAPIService service = retrofit.create(GiphyAPIService.class);
+//        GiphyAPIService service = retrofit.create(GiphyAPIService.class);
 
-        Call<ResponseData> call = service.getTrendingGiphys();
-        call.enqueue(new Callback<ResponseData>() {
-            @Override
-            public void onResponse(final Response<ResponseData> response, Retrofit retrofit) {
-
-                runOnUiThread(new Runnable() {
+//        Call<ResponseData> call = service.getTrendingGiphys();
+//        call.enqueue(new Callback<ResponseData>() {
+//            @Override
+//            public void onResponse(final Response<ResponseData> response) {
+//
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(getBaseContext(), "Good Response", Toast.LENGTH_LONG).show();
+//                        progressBar.setVisibility(View.GONE);
+//                        ResponseData dResponse = response.body();
+//                        List<DataUnit> giphyList = new ArrayList<>();
+//
+//                        for (Data singleGiphy : dResponse.data) {
+//                            giphyList.add(DataUnit.getDataUnit(
+//                                    singleGiphy.images.downSampled.imageUrl));
+//                        }
+//
+//                        adapter = new ImageDataAdapter(getBaseContext(), giphyList);
+//                        mRecyclerView.setAdapter(adapter);
+//                        mRecyclerView.setLayoutManager(new GridLayoutManager(getBaseContext(), 2));
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void onFailure(Throwable t) {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(getBaseContext(), "Bad Response", Toast.LENGTH_LONG).show();
+//
+//                    }
+//                });
+//            }
+//        });
+        service.getTrendingGiphysRX()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<ResponseData>() {
                     @Override
-                    public void run() {
-                        Toast.makeText(getBaseContext(), "Good Response", Toast.LENGTH_LONG).show();
+                    public void call(ResponseData responseData) {
+                        Toast.makeText(getBaseContext(), "Good RX Response", Toast
+                                .LENGTH_LONG).show();
+
                         progressBar.setVisibility(View.GONE);
-                        ResponseData dResponse = response.body();
                         List<DataUnit> giphyList = new ArrayList<>();
 
-                        for (Data singleGiphy : dResponse.data) {
+                        for (Data singleGiphy : responseData.data) {
                             giphyList.add(DataUnit.getDataUnit(
                                     singleGiphy.images.downSampled.imageUrl));
                         }
@@ -129,56 +167,65 @@ public class MainActivity extends AppCompatActivity {
                         adapter = new ImageDataAdapter(getBaseContext(), giphyList);
                         mRecyclerView.setAdapter(adapter);
                         mRecyclerView.setLayoutManager(new GridLayoutManager(getBaseContext(), 2));
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getBaseContext(), "Bad Response", Toast.LENGTH_LONG).show();
 
                     }
                 });
-            }
-        });
     }
 
     private void searchGiphyQuery(String query) {
-        GiphyAPIService service = retrofit.create(GiphyAPIService.class);
-        Call<ResponseData> call = service.getQueryGiphy(query, GiphyAPIService.API_KEY);
-        call.enqueue(new Callback<ResponseData>() {
-            @Override
-            public void onResponse(final Response<ResponseData> response, Retrofit retrofit) {
+//        GiphyAPIService service = retrofit.create(GiphyAPIService.class);
+//        Call<ResponseData> call = service.getQueryGiphy(query, GiphyAPIService.API_KEY);
+//        call.enqueue(new Callback<ResponseData>() {
+//            @Override
+//            public void onResponse(final Response<ResponseData> response) {
+//
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        progressBar.setVisibility(View.GONE);
+//                        ResponseData dResponse = response.body();
+//                        List<DataUnit> giphyList = new ArrayList<>();
+//
+//                        for(Data singleGiphy : dResponse.data){
+//                            giphyList.add(DataUnit.getDataUnit(
+//                                    singleGiphy.images.downSampled.imageUrl));
+//                        }
+//                        adapter.setNewData(giphyList);
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void onFailure(Throwable t) {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(getBaseContext(), "Bad Response", Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//            }
+//        });
 
-                runOnUiThread(new Runnable() {
+        service.getQueryGiphyRX(query,GiphyAPIService.API_KEY)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<ResponseData>() {
                     @Override
-                    public void run() {
+                    public void call(ResponseData responseData) {
+                        Toast.makeText(getBaseContext(), "Good RX Response", Toast
+                                .LENGTH_LONG).show();
+
                         progressBar.setVisibility(View.GONE);
-                        ResponseData dResponse = response.body();
-                        List<DataUnit> giphyList = new ArrayList<>();
+                                List<DataUnit> giphyList = new ArrayList<>();
 
-                        for(Data singleGiphy : dResponse.data){
-                            giphyList.add(DataUnit.getDataUnit(
-                                    singleGiphy.images.downSampled.imageUrl));
-                        }
-                        adapter.setNewData(giphyList);
+                                for(Data singleGiphy : responseData.data){
+                                    giphyList.add(DataUnit.getDataUnit(
+                                            singleGiphy.images.downSampled.imageUrl));
+                                }
+                                adapter.setNewData(giphyList);
+
                     }
                 });
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getBaseContext(), "Bad Response", Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-        });
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
