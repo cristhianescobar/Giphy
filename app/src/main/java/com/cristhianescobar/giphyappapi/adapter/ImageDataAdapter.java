@@ -56,7 +56,11 @@ public class ImageDataAdapter extends RecyclerView.Adapter<ImageDataAdapter.Data
         DataUnit current = data.get(position) ;
         Log.d("ImageDataAdapter", "On onBindViewHolder called " + position);
         holder.title.setText(current.title);
-        Picasso.with(mContext).load(current.title)
+        String url = current.title;
+        if(current.title == null || current.title.isEmpty()){
+            url = "http://luckylab.com/wp-content/uploads/2014/07/soccer-ball.jpg";
+        }
+        Picasso.with(mContext).load(url)
                 .placeholder(android.R.drawable.ic_menu_report_image)
                 .error(android.R.drawable.stat_notify_error)
                 .into(holder.image);
