@@ -37,8 +37,9 @@ public class ImageDataAdapter extends RecyclerView.Adapter<ImageDataAdapter.Data
     }
 
     public void setNewData(List newData){
-        data.clear();
-        data.addAll(newData);
+//        data.clear();
+//        data.addAll(newData);
+        data.addAll(0, newData);
         notifyDataSetChanged();
     }
 

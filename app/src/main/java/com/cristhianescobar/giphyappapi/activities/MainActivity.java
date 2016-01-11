@@ -1,5 +1,6 @@
 package com.cristhianescobar.giphyappapi.activities;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -8,6 +9,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -34,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageDataAdapter adapter;
     private String TAG = "SEARCH";
+    private Retrofit retrofit;
+
 
     @Bind(R.id.toolbar)
     Toolbar toolbar;
@@ -41,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView mRecyclerView;
     @Bind(R.id.search_view)
     SearchView searchView;
+    @Bind(R.id.progress_spinner)
+    ProgressBar progressBar;
+
 
 
 
@@ -49,36 +58,53 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
         setUpToolbar();
+
+        retrofit = new Retrofit.Builder()
+                .baseUrl(GiphyAPIService.API_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
         getPopularGiphys();
     }
 
-    private void setUpToolbar() {
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+    protected void setupSearchView() {
+        /* Show the soft keyboard */
+        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).
+                toggleSoftInput(InputMethodManager.SHOW_FORCED,
+                        InputMethodManager.HIDE_IMPLICIT_ONLY);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Log.d(TAG, "onQueryTextSubmit: " + query);
                 searchGiphyQuery(query);
+                progressBar.setVisibility(View.VISIBLE);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 Log.d(TAG, "onQueryTextChange: " + newText);
+
+                if(!newText.isEmpty() && newText.charAt(newText.length()-1) == ' '){
+                    searchGiphyQuery(newText);
+                    progressBar.setVisibility(View.VISIBLE);
+
+                }
                 return false;
             }
         });
+        searchView.clearFocus();
+    }
+    private void setUpToolbar() {
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        setupSearchView();
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     private void getPopularGiphys() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(GiphyAPIService.API_BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
 
         GiphyAPIService service = retrofit.create(GiphyAPIService.class);
 
@@ -91,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Toast.makeText(getBaseContext(), "Good Response", Toast.LENGTH_LONG).show();
+                        progressBar.setVisibility(View.GONE);
                         ResponseData dResponse = response.body();
                         List<DataUnit> giphyList = new ArrayList<>();
 
@@ -102,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
                         adapter = new ImageDataAdapter(getBaseContext(), giphyList);
                         mRecyclerView.setAdapter(adapter);
                         mRecyclerView.setLayoutManager(new GridLayoutManager(getBaseContext(), 2));
-
                     }
                 });
             }
@@ -121,14 +147,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void searchGiphyQuery(String query) {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(GiphyAPIService.API_BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
         GiphyAPIService service = retrofit.create(GiphyAPIService.class);
-
-        Call<ResponseData> call = service.getQueryGiphy(query);
+        Call<ResponseData> call = service.getQueryGiphy(query, GiphyAPIService.API_KEY);
         call.enqueue(new Callback<ResponseData>() {
             @Override
             public void onResponse(final Response<ResponseData> response, Retrofit retrofit) {
@@ -136,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getBaseContext(), "Good Response", Toast.LENGTH_LONG).show();
+                        progressBar.setVisibility(View.GONE);
                         ResponseData dResponse = response.body();
                         List<DataUnit> giphyList = new ArrayList<>();
 
@@ -144,11 +164,7 @@ public class MainActivity extends AppCompatActivity {
                             giphyList.add(DataUnit.getDataUnit(
                                     singleGiphy.images.downSampled.imageUrl));
                         }
-
-                        adapter = new ImageDataAdapter(getBaseContext(), giphyList);
-                        mRecyclerView.setAdapter(adapter);
-                        mRecyclerView.setLayoutManager(new GridLayoutManager(getBaseContext(), 2));
-
+                        adapter.setNewData(giphyList);
                     }
                 });
             }
@@ -159,7 +175,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Toast.makeText(getBaseContext(), "Bad Response", Toast.LENGTH_LONG).show();
-
                     }
                 });
             }
