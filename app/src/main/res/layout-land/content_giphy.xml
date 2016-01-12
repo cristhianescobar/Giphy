@@ -12,34 +12,36 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".activities.GiphyActivity"
     android:background="@color/colorCalm"
-    tools:showIn="@layout/activity_giphy">
+    tools:showIn="@layout/activity_giphy"
+    android:orientation="vertical">
 
     <android.support.v7.widget.CardView
         android:id="@+id/header"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:elevation="6dp"
-        android:layout_height="100dp">
+        android:layout_marginRight="16dp"
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/list_icon"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
             android:adjustViewBounds="true"
             android:cropToPadding="true"
             android:transitionName="share_element"
-            android:visibility="visible"/>
+            android:visibility="visible"
+            android:src="@mipmap/ic_launcher"/>
+
     </android.support.v7.widget.CardView>
 
     <WebView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/webview"
-        android:layout_below="@id/header"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginBottom="30dp"
-        android:layout_width="match_parent"
-        android:visibility="visible"
         android:layout_height="match_parent"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"/>
+        android:layout_width="400dp"
+        android:visibility="visible"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/list_icon"/>
 
 </RelativeLayout>

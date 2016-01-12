@@ -36,15 +36,15 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String TAG = "SEARCH";
     private final String SAVED_LIST = "list";
+    private final String TAG = "MainActivity";
 
-    private int GRID_CELLS = 1 ;
+    private int GRID_CELLS = 4 ;
+
     private ImageDataAdapter adapter;
     private Retrofit retrofit;
     private GiphyAPIService service;
-
-    private ArrayList<DataUnit> giphyList = new ArrayList<>();
+    private ArrayList<DataUnit> giphyList;
 
     @Bind(R.id.toolbar)
     Toolbar toolbar;
@@ -79,10 +79,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setGiphyRecyclerView() {
+        giphyList = new ArrayList<>();
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             GRID_CELLS = 2;
         }
-        adapter = new ImageDataAdapter(getBaseContext(), giphyList);
+        adapter = new ImageDataAdapter(MainActivity.this, giphyList);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new GridLayoutManager(getBaseContext(), GRID_CELLS));
     }

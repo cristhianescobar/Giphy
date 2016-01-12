@@ -1,6 +1,6 @@
 package com.cristhianescobar.giphyappapi.adapter;
 
-import android.content.Context;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.cristhianescobar.giphyappapi.R;
 import com.cristhianescobar.giphyappapi.activities.GiphyActivity;
+import com.cristhianescobar.giphyappapi.activities.MainActivity;
 import com.cristhianescobar.giphyappapi.utils.DataUnit;
 import com.squareup.picasso.Picasso;
 
@@ -29,9 +30,9 @@ public class ImageDataAdapter extends RecyclerView.Adapter<ImageDataAdapter.Data
 
     private List<DataUnit> data = Collections.emptyList();
     private LayoutInflater inflator;
-    private Context mContext;
+    private MainActivity mContext;
 
-    public ImageDataAdapter(Context context, List<DataUnit> sourceData){
+    public ImageDataAdapter(MainActivity context, List<DataUnit> sourceData){
         inflator = LayoutInflater.from(context);
         mContext = context;
         data = sourceData;
@@ -90,10 +91,18 @@ public class ImageDataAdapter extends RecyclerView.Adapter<ImageDataAdapter.Data
                 Toast.makeText(mContext, "Error Loarding the Giphy", Toast.LENGTH_SHORT).show();
                 return;
             }
-            Intent intent = new Intent(mContext, GiphyActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("url", data.get(getPosition()).title);
-            mContext.startActivity(intent);
+//            Intent intent = new Intent(mContext, GiphyActivity.class);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            intent.putExtra("url", data.get(getPosition()).title);
+//            mContext.startActivity(intent);
+            Intent i = new Intent(mContext, GiphyActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.putExtra("url", data.get(getPosition()).title);
+            View sharedView = image;
+            String transitionName = "share_element";
+            ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(
+                    mContext, sharedView, transitionName);
+            mContext.startActivity(i, transitionActivityOptions.toBundle());
         }
     }
 }
