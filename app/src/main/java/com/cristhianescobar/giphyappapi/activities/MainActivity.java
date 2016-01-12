@@ -13,7 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import com.cristhianescobar.giphyappapi.R;
 import com.cristhianescobar.giphyappapi.adapter.ImageDataAdapter;
@@ -39,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private final String SAVED_LIST = "list";
     private final String TAG = "MainActivity";
 
-    private int GRID_CELLS = 4 ;
+    private int GRID_CELLS = 2;
 
     private ImageDataAdapter adapter;
     private Retrofit retrofit;
@@ -68,12 +67,10 @@ public class MainActivity extends AppCompatActivity {
 
         if(savedInstanceState != null && savedInstanceState.containsKey(SAVED_LIST)){
             giphyList = savedInstanceState.getParcelableArrayList(SAVED_LIST);
-            Toast.makeText(MainActivity.this, "Restoring " + giphyList.size(), Toast.LENGTH_SHORT).show();
             progressBar.setVisibility(View.GONE);
             adapter.setNewData(giphyList);
 
         }else {
-            //Get popular giphys
             getPopularGiphys();
         }
     }
@@ -81,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
     private void setGiphyRecyclerView() {
         giphyList = new ArrayList<>();
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-            GRID_CELLS = 2;
+            GRID_CELLS = 3;
         }
         adapter = new ImageDataAdapter(MainActivity.this, giphyList);
         mRecyclerView.setAdapter(adapter);

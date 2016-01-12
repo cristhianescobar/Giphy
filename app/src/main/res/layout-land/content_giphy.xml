@@ -28,7 +28,7 @@
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
             android:cropToPadding="true"
-            android:transitionName="share_element"
+            android:transitionName="@string/share_element"
             android:visibility="visible"
             android:src="@mipmap/ic_launcher"/>
 
@@ -41,7 +41,6 @@
         android:layout_width="400dp"
         android:visibility="visible"
         android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/list_icon"/>
+        android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>

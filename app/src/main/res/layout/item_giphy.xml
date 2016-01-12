@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:cropToPadding="true"
-            android:transitionName="share_element"
+            android:transitionName="@string/share_element"
             android:scaleType="fitXY"
             android:visibility="visible"/>
 

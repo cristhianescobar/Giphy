@@ -91,17 +91,12 @@ public class ImageDataAdapter extends RecyclerView.Adapter<ImageDataAdapter.Data
                 Toast.makeText(mContext, "Error Loarding the Giphy", Toast.LENGTH_SHORT).show();
                 return;
             }
-//            Intent intent = new Intent(mContext, GiphyActivity.class);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            intent.putExtra("url", data.get(getPosition()).title);
-//            mContext.startActivity(intent);
             Intent i = new Intent(mContext, GiphyActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            i.putExtra("url", data.get(getPosition()).title);
+            i.putExtra(GiphyActivity.URL, data.get(getPosition()).title);
             View sharedView = image;
-            String transitionName = "share_element";
-            ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(
-                    mContext, sharedView, transitionName);
+            String transitionName = mContext.getString(R.string.share_element);
+            ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(mContext, sharedView, transitionName);
             mContext.startActivity(i, transitionActivityOptions.toBundle());
         }
     }

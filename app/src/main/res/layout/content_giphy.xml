@@ -26,7 +26,7 @@
             android:layout_height="100dp"
             android:adjustViewBounds="true"
             android:cropToPadding="true"
-            android:transitionName="share_element"
+            android:transitionName="@string/share_element"
             android:visibility="visible"/>
     </android.support.v7.widget.CardView>
 

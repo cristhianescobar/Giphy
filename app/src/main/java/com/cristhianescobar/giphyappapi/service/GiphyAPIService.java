@@ -16,7 +16,6 @@ public interface GiphyAPIService {
     @GET("/v1/gifs/trending?api_key=dc6zaTOxFJmzC")
     Observable<ResponseData> getTrendingGiphysRX();
 
-
     @GET("/v1/gifs/search")
     Observable<ResponseData> getQueryGiphyRX(@Query("q") String search, @Query("api_key") String key);
 
