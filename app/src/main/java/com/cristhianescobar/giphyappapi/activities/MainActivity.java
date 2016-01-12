@@ -36,15 +36,15 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
+    private String TAG = "SEARCH";
+    private final String SAVED_LIST = "list";
+
     private int GRID_CELLS = 1 ;
     private ImageDataAdapter adapter;
-    private String TAG = "SEARCH";
     private Retrofit retrofit;
     private GiphyAPIService service;
 
     private ArrayList<DataUnit> giphyList = new ArrayList<>();
-//    private ArrayList<DataUnit> topGiphys = new ArrayList<>();
-
 
     @Bind(R.id.toolbar)
     Toolbar toolbar;
@@ -66,8 +66,8 @@ public class MainActivity extends AppCompatActivity {
         setGiphyRecyclerView();
         setupRetrofit();
 
-        if(savedInstanceState != null && savedInstanceState.containsKey("list")){
-            giphyList = savedInstanceState.getParcelableArrayList("list");
+        if(savedInstanceState != null && savedInstanceState.containsKey(SAVED_LIST)){
+            giphyList = savedInstanceState.getParcelableArrayList(SAVED_LIST);
             Toast.makeText(MainActivity.this, "Restoring " + giphyList.size(), Toast.LENGTH_SHORT).show();
             progressBar.setVisibility(View.GONE);
             adapter.setNewData(giphyList);
@@ -122,9 +122,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList("list", giphyList);
+        outState.putParcelableArrayList(SAVED_LIST, giphyList);
         super.onSaveInstanceState(outState);
-
     }
 
     private void setUpToolbar() {
@@ -142,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void call(ResponseData responseData) {
                         progressBar.setVisibility(View.GONE);
-//                        topGiphys = getGiphyObjectsOutOfResponse(responseData);
                         giphyList = getGiphyObjectsOutOfResponse(responseData);
                         adapter.setNewData(giphyList);
                     }
@@ -193,6 +191,11 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            searchView.setQuery("", false);
+            searchView.clearFocus();
+
+            giphyList.clear();
+            getPopularGiphys();
             return true;
         }
 
