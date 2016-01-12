@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cristhianescobar.giphyappapi.R;
 import com.cristhianescobar.giphyappapi.activities.GiphyActivity;
@@ -37,9 +38,8 @@ public class ImageDataAdapter extends RecyclerView.Adapter<ImageDataAdapter.Data
     }
 
     public void setNewData(List newData){
-//        data.clear();
-//        data.addAll(newData);
-        data.addAll(0, newData);
+        data.clear();
+        data.addAll(newData);
         notifyDataSetChanged();
     }
 
@@ -62,7 +62,6 @@ public class ImageDataAdapter extends RecyclerView.Adapter<ImageDataAdapter.Data
             url = "http://luckylab.com/wp-content/uploads/2014/07/soccer-ball.jpg";
         }
         Picasso.with(mContext).load(url)
-                .placeholder(android.R.drawable.ic_menu_report_image)
                 .error(android.R.drawable.stat_notify_error)
                 .into(holder.image);
     }
@@ -83,10 +82,14 @@ public class ImageDataAdapter extends RecyclerView.Adapter<ImageDataAdapter.Data
             super(itemView);
             ButterKnife.bind(this, itemView);
             image.setOnClickListener(this);
-        }
 
+        }
         @Override
         public void onClick(View v) {
+            if (title == null || title.getText().toString().isEmpty()) {
+                Toast.makeText(mContext, "Error Loarding the Giphy", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent intent = new Intent(mContext, GiphyActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra("url", data.get(getPosition()).title);

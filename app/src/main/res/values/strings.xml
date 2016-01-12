@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">GiphyAppAPI</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_trending_giphys">Treanding Giphys</string>
     <string name="title_activity_giphy">GiphyActivity</string>
 </resources>

@@ -1,7 +1,8 @@
 package com.cristhianescobar.giphyappapi.activities;
 
-import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +11,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -23,7 +23,7 @@ import com.cristhianescobar.giphyappapi.service.GiphyAPIService;
 import com.cristhianescobar.giphyappapi.utils.DataUnit;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -36,11 +36,14 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    private int GRID_CELLS = 1 ;
     private ImageDataAdapter adapter;
     private String TAG = "SEARCH";
     private Retrofit retrofit;
     private GiphyAPIService service;
+
+    private ArrayList<DataUnit> giphyList = new ArrayList<>();
+//    private ArrayList<DataUnit> topGiphys = new ArrayList<>();
 
 
     @Bind(R.id.toolbar)
@@ -53,30 +56,47 @@ public class MainActivity extends AppCompatActivity {
     ProgressBar progressBar;
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        setUpToolbar();
 
+        setUpToolbar();
+        setGiphyRecyclerView();
+        setupRetrofit();
+
+        if(savedInstanceState != null && savedInstanceState.containsKey("list")){
+            giphyList = savedInstanceState.getParcelableArrayList("list");
+            Toast.makeText(MainActivity.this, "Restoring " + giphyList.size(), Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
+            adapter.setNewData(giphyList);
+
+        }else {
+            //Get popular giphys
+            getPopularGiphys();
+        }
+    }
+
+    private void setGiphyRecyclerView() {
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+            GRID_CELLS = 2;
+        }
+        adapter = new ImageDataAdapter(getBaseContext(), giphyList);
+        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(getBaseContext(), GRID_CELLS));
+    }
+
+    private void setupRetrofit() {
         retrofit = new Retrofit.Builder()
                 .baseUrl(GiphyAPIService.API_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
         service = retrofit.create(GiphyAPIService.class);
-
-        getPopularGiphys();
     }
 
     protected void setupSearchView() {
-        /* Show the soft keyboard */
-        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).
-                toggleSoftInput(InputMethodManager.SHOW_FORCED,
-                        InputMethodManager.HIDE_IMPLICIT_ONLY);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -90,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 Log.d(TAG, "onQueryTextChange: " + newText);
-
                 if(!newText.isEmpty() && newText.charAt(newText.length()-1) == ' '){
                     searchGiphyQuery(newText);
                     progressBar.setVisibility(View.VISIBLE);
@@ -100,6 +119,14 @@ public class MainActivity extends AppCompatActivity {
         });
         searchView.clearFocus();
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("list", giphyList);
+        super.onSaveInstanceState(outState);
+
+    }
+
     private void setUpToolbar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -108,125 +135,48 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getPopularGiphys() {
-
-//        GiphyAPIService service = retrofit.create(GiphyAPIService.class);
-
-//        Call<ResponseData> call = service.getTrendingGiphys();
-//        call.enqueue(new Callback<ResponseData>() {
-//            @Override
-//            public void onResponse(final Response<ResponseData> response) {
-//
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Toast.makeText(getBaseContext(), "Good Response", Toast.LENGTH_LONG).show();
-//                        progressBar.setVisibility(View.GONE);
-//                        ResponseData dResponse = response.body();
-//                        List<DataUnit> giphyList = new ArrayList<>();
-//
-//                        for (Data singleGiphy : dResponse.data) {
-//                            giphyList.add(DataUnit.getDataUnit(
-//                                    singleGiphy.images.downSampled.imageUrl));
-//                        }
-//
-//                        adapter = new ImageDataAdapter(getBaseContext(), giphyList);
-//                        mRecyclerView.setAdapter(adapter);
-//                        mRecyclerView.setLayoutManager(new GridLayoutManager(getBaseContext(), 2));
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onFailure(Throwable t) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Toast.makeText(getBaseContext(), "Bad Response", Toast.LENGTH_LONG).show();
-//
-//                    }
-//                });
-//            }
-//        });
         service.getTrendingGiphysRX()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<ResponseData>() {
                     @Override
                     public void call(ResponseData responseData) {
-                        Toast.makeText(getBaseContext(), "Good RX Response", Toast
-                                .LENGTH_LONG).show();
-
                         progressBar.setVisibility(View.GONE);
-                        List<DataUnit> giphyList = new ArrayList<>();
-
-                        for (Data singleGiphy : responseData.data) {
-                            giphyList.add(DataUnit.getDataUnit(
-                                    singleGiphy.images.downSampled.imageUrl));
-                        }
-
-                        adapter = new ImageDataAdapter(getBaseContext(), giphyList);
-                        mRecyclerView.setAdapter(adapter);
-                        mRecyclerView.setLayoutManager(new GridLayoutManager(getBaseContext(), 2));
-
+//                        topGiphys = getGiphyObjectsOutOfResponse(responseData);
+                        giphyList = getGiphyObjectsOutOfResponse(responseData);
+                        adapter.setNewData(giphyList);
                     }
                 });
     }
 
-    private void searchGiphyQuery(String query) {
-//        GiphyAPIService service = retrofit.create(GiphyAPIService.class);
-//        Call<ResponseData> call = service.getQueryGiphy(query, GiphyAPIService.API_KEY);
-//        call.enqueue(new Callback<ResponseData>() {
-//            @Override
-//            public void onResponse(final Response<ResponseData> response) {
-//
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        progressBar.setVisibility(View.GONE);
-//                        ResponseData dResponse = response.body();
-//                        List<DataUnit> giphyList = new ArrayList<>();
-//
-//                        for(Data singleGiphy : dResponse.data){
-//                            giphyList.add(DataUnit.getDataUnit(
-//                                    singleGiphy.images.downSampled.imageUrl));
-//                        }
-//                        adapter.setNewData(giphyList);
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onFailure(Throwable t) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Toast.makeText(getBaseContext(), "Bad Response", Toast.LENGTH_LONG).show();
-//                    }
-//                });
-//            }
-//        });
+    @NonNull
+    private ArrayList<DataUnit> getGiphyObjectsOutOfResponse(ResponseData responseData) {
+        ArrayList<DataUnit> giphyList = new ArrayList<>();
 
+        for (Data singleGiphy : responseData.data) {
+            giphyList.add(DataUnit.getDataUnit(singleGiphy.images.downSampled.imageUrl));
+        }
+        return giphyList;
+    }
+
+    private void searchGiphyQuery(String query) {
         service.getQueryGiphyRX(query,GiphyAPIService.API_KEY)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<ResponseData>() {
                     @Override
                     public void call(ResponseData responseData) {
-                        Toast.makeText(getBaseContext(), "Good RX Response", Toast
-                                .LENGTH_LONG).show();
-
                         progressBar.setVisibility(View.GONE);
-                                List<DataUnit> giphyList = new ArrayList<>();
-
-                                for(Data singleGiphy : responseData.data){
-                                    giphyList.add(DataUnit.getDataUnit(
-                                            singleGiphy.images.downSampled.imageUrl));
-                                }
-                                adapter.setNewData(giphyList);
-
+                        ArrayList<DataUnit> temp = getGiphyObjectsOutOfResponse(responseData);
+                        Collections.reverse(temp);
+                        for (DataUnit temData: temp){
+                            giphyList.add(0, temData);
+                        }
+                        adapter.setNewData(giphyList);
                     }
                 });
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
