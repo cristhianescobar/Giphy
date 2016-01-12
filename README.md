@@ -16,7 +16,7 @@ GiphyAppApi was develop experiment with Giphy's API :)
 * [butterknife](http://jakewharton.github.io/butterknife/)
 * [Picasso for image loading] (http://square.github.io/picasso/)
 
-## Know Bugs
+## Known Bugs
 	* Need to add Error handler for RX
 	* Random crash when the user has low internet connectivity
 	* Sometimes the list shows duplicates, not sure exactly how to reproduce it but it probably has to do with making a api call before finishing the search. 
