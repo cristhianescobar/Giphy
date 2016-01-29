@@ -34,13 +34,13 @@
 
     </android.support.v7.widget.CardView>
 
-    <WebView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/webview"
-        android:layout_height="match_parent"
-        android:layout_width="400dp"
-        android:visibility="visible"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"/>
+    <!--<WebView-->
+        <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+        <!--android:id="@+id/webview"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_width="400dp"-->
+        <!--android:visibility="visible"-->
+        <!--android:layout_alignParentTop="true"-->
+        <!--android:layout_alignParentEnd="true"/>-->
 
 </RelativeLayout>

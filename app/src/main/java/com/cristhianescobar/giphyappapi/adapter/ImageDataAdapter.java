@@ -11,11 +11,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.cristhianescobar.giphyappapi.R;
 import com.cristhianescobar.giphyappapi.activities.GiphyActivity;
 import com.cristhianescobar.giphyappapi.activities.MainActivity;
 import com.cristhianescobar.giphyappapi.utils.DataUnit;
-import com.squareup.picasso.Picasso;
 
 import java.util.Collections;
 import java.util.List;
@@ -60,12 +60,12 @@ public class ImageDataAdapter extends RecyclerView.Adapter<ImageDataAdapter.Data
         holder.title.setText(current.title);
         String url = current.title;
         if(current.title == null || current.title.isEmpty()){
-            url = "http://luckylab.com/wp-content/uploads/2014/07/soccer-ball.jpg";
+            url = "https://media.giphy.com/media/bAy8xK8qcCz0A/giphy.gif";
         }
-        Picasso.with(mContext).load(url)
-                .error(android.R.drawable.stat_notify_error)
-                .into(holder.image);
+
+        Glide.with(mContext).load(url).asGif().into(holder.image);
     }
+
 
     @Override
     public int getItemCount() {
